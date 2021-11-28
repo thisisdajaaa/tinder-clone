@@ -14,6 +14,7 @@ module.exports = function (api) {
             "@app/navigators": "./src/navigators",
             "@app/screens": "./src/screens",
             "@app/providers": "./src/providers",
+            "@app/config": "./src/config",
           },
         },
       ],

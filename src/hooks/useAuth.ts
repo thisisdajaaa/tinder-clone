@@ -1,19 +1,24 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useMemo } from "react";
 
 export interface IUserContext {
   user: any | null;
+  signInWithGoogle: () => Promise<void>;
 }
 
 export const AuthContext = createContext<IUserContext>({} as IUserContext);
 
-const useAuth = () => {
+export const useAuth = () => {
   const context = useContext<IUserContext>(AuthContext);
 
   if (context === undefined) {
-    throw new Error("useToastContext must be used within a ToastProvider");
+    throw new Error("useAuth must be used within a AuthProvider");
   }
 
-  return { ...context };
+  return useMemo(
+    () => ({
+      user: context.user,
+      signInWithGoogle: context.signInWithGoogle,
+    }),
+    [context.user, context.signInWithGoogle]
+  );
 };
-
-export default useAuth;
