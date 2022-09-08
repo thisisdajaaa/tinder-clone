@@ -1,56 +1,103 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { LogBox } from "react-native";
-import { InitialState, NavigationContainer } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Constants from "expo-constants";
-import StackNavigator from "@app/navigators";
-import AuthProvider from "@app/providers/AuthProvider";
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Home, Matches, Messages, Profile } from "./screens";
+import { PRIMARY_COLOR, DARK_GRAY, BLACK, WHITE } from "./assets/styles";
+import TabBarIcon from "./components/TabBarIcon";
 
-LogBox.ignoreAllLogs();
+const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 
-const NAVIGATION_STATE_KEY = `NAVIGATION_STATE_KEY-${Constants.manifest?.sdkVersion}`;
+const App = () => (
+  <NavigationContainer>
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Tab"
+        options={{ headerShown: false, animationEnabled: false }}
+      >
+        {() => (
+          <Tab.Navigator
+            tabBarOptions={{
+              showLabel: false,
+              activeTintColor: PRIMARY_COLOR,
+              inactiveTintColor: DARK_GRAY,
+              labelStyle: {
+                fontSize: 14,
+                textTransform: "uppercase",
+                paddingTop: 10,
+              },
+              style: {
+                backgroundColor: WHITE,
+                borderTopWidth: 0,
+                marginBottom: 0,
+                shadowOpacity: 0.05,
+                shadowRadius: 10,
+                shadowColor: BLACK,
+                shadowOffset: { height: 0, width: 0 },
+              },
+            }}
+          >
+            <Tab.Screen
+              name="Explore"
+              component={Home}
+              options={{
+                tabBarIcon: ({ focused }) => (
+                  <TabBarIcon
+                    focused={focused}
+                    iconName="search"
+                    text="Explore"
+                  />
+                ),
+              }}
+            />
 
-const App = () => {
-  const [isNavigationReady, setIsNavigationReady] = useState(!__DEV__);
-  const [initialState, setInitialState] = useState<InitialState | undefined>();
+            <Tab.Screen
+              name="Matches"
+              component={Matches}
+              options={{
+                tabBarIcon: ({ focused }) => (
+                  <TabBarIcon
+                    focused={focused}
+                    iconName="heart"
+                    text="Matches"
+                  />
+                ),
+              }}
+            />
 
-  useEffect(() => {
-    const restoreState = async () => {
-      try {
-        const savedStateString = await AsyncStorage.getItem(
-          NAVIGATION_STATE_KEY
-        );
-        const state = savedStateString
-          ? JSON.parse(savedStateString)
-          : undefined;
-        setInitialState(state);
-      } finally {
-        setIsNavigationReady(true);
-      }
-    };
-    if (!isNavigationReady) {
-      restoreState();
-    }
-  }, [isNavigationReady]);
+            <Tab.Screen
+              name="Chat"
+              component={Messages}
+              options={{
+                tabBarIcon: ({ focused }) => (
+                  <TabBarIcon
+                    focused={focused}
+                    iconName="chatbubble"
+                    text="Chat"
+                  />
+                ),
+              }}
+            />
 
-  const onStateChange = useCallback(
-    (state) =>
-      AsyncStorage.setItem(NAVIGATION_STATE_KEY, JSON.stringify(state)),
-    []
-  );
-
-  if (!isNavigationReady) return null;
-
-  return (
-    <SafeAreaProvider>
-      <NavigationContainer {...{ onStateChange, initialState }}>
-        <AuthProvider>
-          <StackNavigator />
-        </AuthProvider>
-      </NavigationContainer>
-    </SafeAreaProvider>
-  );
-};
+            <Tab.Screen
+              name="Profile"
+              component={Profile}
+              options={{
+                tabBarIcon: ({ focused }) => (
+                  <TabBarIcon
+                    focused={focused}
+                    iconName="person"
+                    text="Profile"
+                  />
+                ),
+              }}
+            />
+          </Tab.Navigator>
+        )}
+      </Stack.Screen>
+    </Stack.Navigator>
+  </NavigationContainer>
+);
 
 export default App;
